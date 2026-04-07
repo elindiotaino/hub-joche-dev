@@ -23,3 +23,16 @@ and depends on the tool app being deployed with a matching base path.
 - `NEXT_PUBLIC_SITE_URL`: public hub URL
 - `FUNDING_OPS_URL`: public link shown on the homepage
 - `FUNDING_OPS_ORIGIN`: deployment origin used by rewrites, such as `https://funding-ops.joche.dev`
+- `NEXT_PUBLIC_SUPABASE_URL`: shared Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: shared Supabase browser key
+- `SUPABASE_SERVICE_ROLE_KEY`: server-side key for roles, orgs, and access management
+- `ADMIN_EMAIL`: global admin email, defaults to `josecancel2@gmail.com`
+
+## Auth model
+
+- Google login through Supabase
+- Global roles: `admin`, `manager`, `user`
+- Users can belong to multiple organizations
+- Tool access comes from direct user grants or organization grants
+
+Run [docs/supabase-hub-schema.sql](./docs/supabase-hub-schema.sql) in Supabase before using the admin features.
