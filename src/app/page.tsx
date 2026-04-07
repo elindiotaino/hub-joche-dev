@@ -1,8 +1,11 @@
+import { SiteHeader } from "@/components/SiteHeader";
 import { tools } from "@/lib/tools";
 
 export default function HomePage() {
   return (
-    <main className="shell">
+    <>
+      <SiteHeader />
+      <main className="shell">
       <section className="hero">
         <p className="eyebrow">hub.joche.dev</p>
         <h1>One homepage for every tool.</h1>
@@ -12,7 +15,7 @@ export default function HomePage() {
         </p>
       </section>
 
-      <section className="grid">
+      <section className="grid" id="tools">
         {tools.map((tool) => (
           <article className="card" key={tool.slug}>
             <p className="status">{tool.status}</p>
@@ -26,5 +29,6 @@ export default function HomePage() {
         ))}
       </section>
     </main>
+    </>
   );
 }
