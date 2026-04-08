@@ -1,7 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import type { VercelProject, VercelDeployment } from "@/lib/hub/types";
+
+type VercelDeployment = {
+  uid: string;
+  name: string;
+  url: string;
+  state: "READY" | "ERROR" | "BUILDING" | "INITIALIZING" | "QUEUED" | "CANCELED";
+  created: number;
+  creator: {
+    uid: string;
+    email: string;
+    username: string;
+  };
+  inspectorUrl: string;
+};
+
+type VercelProject = {
+  id: string;
+  name: string;
+  framework: string | null;
+  updatedAt: number;
+  link: {
+    type: "github" | "gitlab" | "bitbucket";
+    repo: string;
+    org: string;
+  } | null;
+  latestDeployments: VercelDeployment[];
+};
 
 type VercelStatusProps = {
   projects: VercelProject[];
