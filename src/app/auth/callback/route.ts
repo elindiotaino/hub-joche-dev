@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { isAdminEmail } from "@/lib/hub/roles";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getSupabaseCookieOptions } from "@/lib/supabase/cookies";
 import {
   getSupabaseAuthEnv,
   hasSupabaseAuthEnv,
@@ -38,15 +39,20 @@ function createCallbackRedirectClient(
   response: NextResponse,
 ) {
   const { url, publishableKey } = getSupabaseAuthEnv();
+  const cookieOptions = getSupabaseCookieOptions(request.nextUrl.origin);
 
   return createServerClient(url, publishableKey, {
+    cookieOptions,
     cookies: {
       getAll() {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
-          response.cookies.set(name, value, options);
+          response.cookies.set(name, value, {
+            ...options,
+            ...cookieOptions,
+          });
         });
       },
     },
