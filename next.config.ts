@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
-const fundingOpsOrigin = process.env.FUNDING_OPS_ORIGIN;
+const defaultFundingOpsOrigin = "https://funding-ops.vercel.app";
+const configuredFundingOpsOrigin = process.env.FUNDING_OPS_ORIGIN?.trim();
+const fundingOpsOrigin =
+  configuredFundingOpsOrigin === "https://funding-ops.joche.dev"
+    ? defaultFundingOpsOrigin
+    : configuredFundingOpsOrigin || defaultFundingOpsOrigin;
 
 const nextConfig: NextConfig = {
   async rewrites() {
