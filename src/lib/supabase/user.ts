@@ -95,3 +95,35 @@ export function getUserDisplayName(
     "Account"
   );
 }
+
+export function getUserAvatarUrl(
+  user: User | null,
+  identities: unknown = user?.identities ?? [],
+) {
+  if (!user) {
+    return null;
+  }
+
+  const metadata = asRecord(user.user_metadata);
+  const appMetadata = asRecord(user.app_metadata);
+  const candidates: Array<unknown> = [
+    metadata.avatar_url,
+    metadata.picture,
+    appMetadata.avatar_url,
+    appMetadata.picture,
+  ];
+
+  getUserIdentities(user, identities).forEach((identity) => {
+    const identityData = asRecord(identity.identity_data);
+    candidates.push(identityData.avatar_url, identityData.picture);
+  });
+
+  for (const candidate of candidates) {
+    const nextValue = getNonEmptyString(candidate);
+    if (nextValue) {
+      return nextValue;
+    }
+  }
+
+  return null;
+}

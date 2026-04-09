@@ -637,6 +637,64 @@ textarea {
   gap: 14px;
 }
 
+.account-avatar-shell {
+  position: relative;
+}
+
+.account-avatar-shell::before {
+  content: "";
+  position: absolute;
+  inset: -0.45rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(106, 168, 255, 0.34), transparent 70%);
+  filter: blur(16px);
+  opacity: 0.72;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.account-avatar-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 26px rgba(6, 18, 29, 0.22);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.account-avatar-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.account-avatar-button--open {
+  border-color: rgba(105, 230, 200, 0.44);
+  box-shadow: 0 12px 28px rgba(105, 230, 200, 0.18);
+}
+
+.account-avatar-button--open + .account-avatar-shell::before {
+  opacity: 1;
+}
+
+.account-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.account-avatar-fallback {
+  color: white;
+  font-family: var(--font-geist-sans), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
 .brand__mark {
   display: inline-flex;
   align-items: center;
@@ -716,6 +774,71 @@ textarea {
   margin-top: 10px;
   border-radius: 24px;
   overflow: hidden;
+}
+
+.account-subnav {
+  width: min(1240px, calc(100vw - 28px));
+  margin: 10px auto 0;
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  background:
+    linear-gradient(135deg, rgba(106, 168, 255, 0.12), rgba(105, 230, 200, 0.08)),
+    rgba(8, 20, 29, 0.9);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(22px);
+}
+
+.account-subnav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px;
+}
+
+.account-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.account-summary__avatar {
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.account-summary__copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.account-summary__copy strong,
+.account-summary__copy span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-summary__copy strong {
+  color: white;
+  font-size: 0.94rem;
+}
+
+.account-summary__copy span {
+  color: var(--text-soft);
+  font-size: 0.82rem;
+}
+
+.account-subnav__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .mobile-panel--open {
@@ -813,6 +936,24 @@ textarea {
 
   .mobile-toggle {
     display: inline-block;
+  }
+
+  .account-subnav,
+  .mobile-panel {
+    width: min(100vw - 20px, 100%);
+  }
+
+  .account-subnav__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .account-subnav__links {
+    width: 100%;
+  }
+
+  .account-subnav__links .secondary-link {
+    width: 100%;
   }
 
   .hero-stat-grid,
