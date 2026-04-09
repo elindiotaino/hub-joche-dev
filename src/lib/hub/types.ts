@@ -50,11 +50,39 @@ export type HubOrganizationInvite = {
   created_at: string | null;
 };
 
+export type VercelDeployment = {
+  uid: string;
+  name: string;
+  url: string;
+  state: "READY" | "ERROR" | "BUILDING" | "INITIALIZING" | "QUEUED" | "CANCELED";
+  created: number;
+  creator: {
+    uid: string;
+    email: string;
+    username: string;
+  };
+  inspectorUrl: string;
+};
+
+export type VercelProject = {
+  id: string;
+  name: string;
+  framework: string | null;
+  updatedAt: number;
+  link: {
+    type: "github" | "gitlab" | "bitbucket";
+    repo: string;
+    org: string;
+  } | null;
+  latestDeployments: VercelDeployment[];
+};
+
 export type HubDashboardData = {
   user: User;
   userSummary: HubUserSummary;
   organizations: Array<HubOrganization & { membershipRole: string }>;
   accessibleTools: HubToolDefinition[];
+  vercelProjects: VercelProject[] | null;
   management:
     | {
         users: HubUserSummary[];

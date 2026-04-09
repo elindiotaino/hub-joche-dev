@@ -11,7 +11,75 @@ import type {
   HubOrganizationToolGrant,
   HubUserSummary,
   HubUserToolGrant,
+  VercelProject,
+  VercelDeployment,
 } from "@/lib/hub/types";
+
+async function fetchVercel<T>(path: string): Promise<T> {
+  const token = process.env.VERCEL_TOKEN;
+  if (!token) {
+    throw new Error("VERCEL_TOKEN is not configured.");
+  }
+
+  const response = await fetch(`https://api.vercel.com${path}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || `Vercel API error: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function getVercelData(): Promise<VercelProject[]> {
+  try {
+    const { projects } = await fetchVercel<{ projects: any[] }>("/v9/projects");
+
+    const projectsWithDeploys = await Promise.all(
+      projects.map(async (project) => {
+        const { deployments } = await fetchVercel<{ deployments: any[] }>(
+          `/v6/deployments?projectId=${project.id}&limit=5`
+        );
+
+        return {
+          id: project.id,
+          name: project.name,
+          framework: project.framework,
+          updatedAt: project.updatedAt,
+          link: project.link
+            ? {
+                type: project.link.type,
+                repo: project.link.repo,
+                org: project.link.org,
+              }
+            : null,
+          latestDeployments: deployments.map((d) => ({
+            uid: d.uid,
+            name: d.name,
+            url: d.url,
+            state: d.state,
+            created: d.created,
+            creator: {
+              uid: d.creator.uid,
+              email: d.creator.email,
+              username: d.creator.username,
+            },
+            inspectorUrl: d.inspectorUrl,
+          })),
+        };
+      })
+    );
+
+    return projectsWithDeploys;
+  } catch (error) {
+    console.error("Failed to fetch Vercel data:", error);
+    return [];
+  }
+}
 
 function isSchemaMissing(error: { code?: string; message?: string } | null) {
   return error?.code === "PGRST205" || error?.message?.includes("does not exist");
@@ -109,6 +177,11 @@ export async function getCurrentHubDashboard(): Promise<HubDashboardData | null>
     ? "admin"
     : ((roleResult.data?.role as HubRole | undefined) ?? "user");
 
+  let vercelProjects: VercelProject[] | null = null;
+  if (role === "admin") {
+    vercelProjects = await getVercelData();
+  }
+
   const memberships = (membershipsResult.data ?? []) as HubOrganizationMember[];
   const organizations = ((organizationsResult.data ?? []) as HubOrganization[]).filter((organization) =>
     memberships.some((membership) => membership.organization_id === organization.organization_id),
@@ -181,6 +254,7 @@ export async function getCurrentHubDashboard(): Promise<HubDashboardData | null>
           ?.membership_role ?? "member",
     })),
     accessibleTools,
+    vercelProjects,
     management,
   };
 }
