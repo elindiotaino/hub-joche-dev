@@ -26,7 +26,8 @@ and depends on the tool app being deployed with a matching base path.
 - `NEXT_PUBLIC_SUPABASE_URL`: shared Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: shared Supabase browser key
 - `SUPABASE_SERVICE_ROLE_KEY`: server-side key for roles, orgs, and access management
-- `ADMIN_EMAIL`: global admin email, defaults to `josecancel2@gmail.com`
+- `ADMIN_EMAIL`: legacy single admin email
+- `ADMIN_EMAILS`: comma-separated admin email allowlist; when omitted, falls back to `ADMIN_EMAIL`, which defaults to `josecancel2@gmail.com`
 
 ## Auth model
 
