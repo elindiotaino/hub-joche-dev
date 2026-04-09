@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 
 const navItems = [
-  { label: "Tools", href: "#tools" },
+  { label: "Tool Grid", href: "#tools" },
+  { label: "Organizations", href: "#organizations" },
+  { label: "Admin", href: "#admin" },
   { label: "Funding Ops", href: "/funding-ops" },
   { label: "Joche.dev", href: "https://joche.dev", external: true },
 ];
@@ -16,10 +18,10 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="site-header__bar">
         <Link className="brand" href="/">
-          <span className="brand__mark">J</span>
+          <span className="brand__mark">H</span>
           <span className="brand__copy">
-            <strong>Joche Dev</strong>
-            <span>Tool Hub</span>
+            <strong>Hub Joche Dev</strong>
+            <span>Operations Console</span>
           </span>
         </Link>
 
@@ -54,7 +56,13 @@ export function SiteHeader() {
         <nav className="mobile-nav" aria-label="Mobile navigation">
           {navItems.map((item) =>
             item.external ? (
-              <a key={item.label} href={item.href} target="_blank" rel="noreferrer" onClick={() => setMobileOpen(false)}>
+              <a
+                key={item.label}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setMobileOpen(false)}
+              >
                 {item.label}
               </a>
             ) : (
