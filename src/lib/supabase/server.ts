@@ -7,9 +7,10 @@ import { getSupabaseAuthEnv } from "@/lib/supabase/env";
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
   const { url, publishableKey } = getSupabaseAuthEnv();
+  const cookieOptions = getSupabaseCookieOptions();
 
   return createServerClient(url, publishableKey, {
-    cookieOptions: getSupabaseCookieOptions(),
+    cookieOptions,
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -17,7 +18,10 @@ export async function createSupabaseServerClient() {
       setAll(cookiesToSet) {
         try {
           cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
+            cookieStore.set(name, value, {
+              ...options,
+              ...cookieOptions,
+            });
           });
         } catch {
           // Server Components may be read-only for cookies.
