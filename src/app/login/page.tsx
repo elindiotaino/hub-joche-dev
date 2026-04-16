@@ -6,11 +6,15 @@ import { redirect } from "next/navigation";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; error?: string; message?: string }>;
 }) {
   const params = await searchParams;
   const nextPath =
     typeof params.next === "string" && params.next.startsWith("/") ? params.next : "/";
+  const initialError =
+    typeof params.error === "string" && params.error.trim().length > 0 ? params.error : null;
+  const initialMessage =
+    typeof params.message === "string" && params.message.trim().length > 0 ? params.message : null;
   const isConfigured = hasSupabaseAuthEnv();
 
   if (isConfigured) {
@@ -24,5 +28,12 @@ export default async function LoginPage({
     }
   }
 
-  return <LoginScreen isConfigured={isConfigured} nextPath={nextPath} />;
+  return (
+    <LoginScreen
+      isConfigured={isConfigured}
+      nextPath={nextPath}
+      initialError={initialError}
+      initialMessage={initialMessage}
+    />
+  );
 }

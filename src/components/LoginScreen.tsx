@@ -1,17 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type LoginScreenProps = {
   nextPath: string;
   isConfigured: boolean;
+  initialError?: string | null;
+  initialMessage?: string | null;
 };
 
-export function LoginScreen({ nextPath, isConfigured }: LoginScreenProps) {
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export function LoginScreen({
+  nextPath,
+  isConfigured,
+  initialError = null,
+  initialMessage = null,
+}: LoginScreenProps) {
+  const [googlePending, setGooglePending] = useState(false);
+  const [passwordPending, setPasswordPending] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(initialError);
+  const [message, setMessage] = useState<string | null>(initialMessage);
 
   async function handleGoogleSignIn() {
     if (!isConfigured) {
@@ -19,8 +30,9 @@ export function LoginScreen({ nextPath, isConfigured }: LoginScreenProps) {
       return;
     }
 
-    setPending(true);
+    setGooglePending(true);
     setError(null);
+    setMessage(null);
 
     const callbackUrl = new URL("/auth/callback", window.location.origin);
     callbackUrl.searchParams.set("next", nextPath);
@@ -36,8 +48,41 @@ export function LoginScreen({ nextPath, isConfigured }: LoginScreenProps) {
 
     if (signInError) {
       setError(signInError.message);
-      setPending(false);
+      setGooglePending(false);
     }
+  }
+
+  async function handlePasswordSignIn(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!isConfigured) {
+      setError("Supabase auth is not configured.");
+      return;
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !password) {
+      setError("Email and password are required.");
+      return;
+    }
+
+    setPasswordPending(true);
+    setError(null);
+    setMessage(null);
+
+    const supabase = createSupabaseBrowserClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
+    });
+
+    if (signInError) {
+      setError(signInError.message);
+      setPasswordPending(false);
+      return;
+    }
+
+    window.location.assign(nextPath);
   }
 
   return (
@@ -47,7 +92,7 @@ export function LoginScreen({ nextPath, isConfigured }: LoginScreenProps) {
           <p className="eyebrow">Secure Access Layer</p>
           <h1>Enter the hub that runs your tool stack.</h1>
           <p className="lede">
-            Google sign-in gates the workspace, role assignments, organization access,
+            Shared Supabase auth gates the workspace, role assignments, organization access,
             and private operations surfaces behind one shared control plane.
           </p>
 
@@ -69,7 +114,7 @@ export function LoginScreen({ nextPath, isConfigured }: LoginScreenProps) {
           <div className="metric-band">
             <div className="metric">
               <span>Identity model</span>
-              <strong>Google OAuth</strong>
+              <strong>Shared auth</strong>
             </div>
             <div className="metric">
               <span>Scope</span>
@@ -98,16 +143,54 @@ export function LoginScreen({ nextPath, isConfigured }: LoginScreenProps) {
             The next destination is <span className="mono">{nextPath}</span>.
           </p>
 
-          <div className="button-row" style={{ marginTop: "1.5rem" }}>
+          {message ? (
+            <p className="notice success" style={{ marginTop: "1rem" }}>
+              {message}
+            </p>
+          ) : null}
+
+          <form className="form-grid" style={{ marginTop: "1.5rem" }} onSubmit={handlePasswordSignIn}>
+            <label className="full">
+              <span>Pre-authorized email</span>
+              <input
+                type="email"
+                autoComplete="email"
+                placeholder="name@company.com"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                disabled={googlePending || passwordPending}
+              />
+            </label>
+            <label className="full">
+              <span>Password</span>
+              <input
+                type="password"
+                autoComplete="current-password"
+                placeholder="Enter your account password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                disabled={googlePending || passwordPending}
+              />
+            </label>
+            <button type="submit" disabled={googlePending || passwordPending}>
+              {passwordPending ? "Signing in..." : "Sign in with email and password"}
+            </button>
+          </form>
+
+          <p className="lede" style={{ marginTop: "1rem", fontSize: "0.95rem" }}>
+            Use this path for pre-authorized accounts that already exist in the shared hub identity system.
+          </p>
+
+          <div className="button-row" style={{ marginTop: "1.25rem" }}>
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              disabled={pending}
+              disabled={googlePending || passwordPending}
               className="button-pill"
               style={{ width: "100%" }}
             >
               <span aria-hidden="true">G</span>
-              <span>{pending ? "Redirecting..." : "Sign in with Google"}</span>
+              <span>{googlePending ? "Redirecting..." : "Sign in with Google"}</span>
             </button>
           </div>
 
@@ -130,7 +213,7 @@ export function LoginScreen({ nextPath, isConfigured }: LoginScreenProps) {
             </li>
             <li>
               <span className="check-dot" />
-              <span>Admins get deployment visibility, high-trust tools, and system-wide access from the same session.</span>
+              <span>Pre-authorized email accounts and Google-linked accounts both resolve to the same shared control plane.</span>
             </li>
           </ul>
         </section>
